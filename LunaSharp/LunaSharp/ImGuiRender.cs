@@ -1,26 +1,62 @@
 ﻿using ImGuiNET;
-using System.Numerics;
+using LunaSharp.Utils;
+using RenderSpy.Globals;
+using System;
+using System.Diagnostics;
+using System.IO;
 
-public class ImGuiRender
+public class ImGuiRender : IDisposable
 {
-    private float f = 0.0f;
-    private bool show_test_window = false;
-    private bool show_another_window = false;
-    private Vector3 clear_color = new Vector3(114f / 255f, 144f / 255f, 154f / 255f);
-    private byte[] _textBuffer = new byte[100];
+    public bool IsInitialized { get; set; }
     private static ImGuiRender _instance { get; set; }
     public static ImGuiRender Instance => _instance ??= new ImGuiRender();
 
-    public void Initialize()
+    public void Initialize(IntPtr device)
     {
-        ImGui.Text("Hello, world!");
-        ImGui.SliderFloat("float", ref f, 0.0f, 1.0f, string.Empty);
-        ImGui.ColorEdit3("clear color", ref clear_color);
-        if (ImGui.Button("Test Window")) show_test_window = !show_test_window;
-        if (ImGui.Button("Another Window")) show_another_window = !show_another_window;
-        ImGui.Text(string.Format("Application average {0:F3} ms/frame ({1:F1} FPS)", 1000f / ImGui.GetIO().Framerate, ImGui.GetIO().Framerate));
+        if (IsInitialized) return;
+        var cimguiPath = Path.Combine(ApplicationInfo.PathRoot, "Libs", "cimgui.dll");
+        if (File.Exists(cimguiPath))
+        {
+            var libPtr = WinApi.LoadLibrary(cimguiPath);
+            Logging.Write()($"cimgui.dll load at {libPtr:X}");
+        }
+        var ctx = ImGui.CreateContext();
+        var io = ImGui.GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
+        // Setup Dear ImGui style
+        ImGui.StyleColorsDark();
+        //ImGui::StyleColorsLight();
 
-        ImGui.InputText("Text input", _textBuffer, 100);
-        ImGui.Text("Texture sample");
+        // Setup Platform/Renderer backends
+        var hwnd = Process.GetCurrentProcess().MainWindowHandle;
+        ImplWin32.Init(hwnd);
+        ImplDX9.Init(device);
+        IsInitialized = true;
+
+    }
+    public void Render()
+    {
+        ImplDX9.NewFrame();
+        ImplWin32.NewFrame();
+        ImGui.NewFrame();
+        ImGui.Begin("Another window from c#");
+        ImGui.Text("Hello worlds");
+        ImGui.Button("Click me");
+    }
+
+    public void Endscene()
+    {
+        ImGui.EndFrame();
+        ImGui.Render();
+        var data = ImGui.GetDrawData();
+        ImplDX9.RenderDrawData(data);
+    }
+
+    public void Dispose()
+    {
+        ImplDX9.Shutdown();
+        ImplWin32.Shutdown();
+        ImGui.DestroyContext();
     }
 }

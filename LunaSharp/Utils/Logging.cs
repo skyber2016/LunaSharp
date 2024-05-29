@@ -56,7 +56,7 @@ namespace LunaSharp.Utils
         private static void Write(string message, string memberName)
         {
             string format = $"[{DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss")}]: [{memberName.PadLeft(30)}] -> {message}";
-
+            Console.WriteLine(format);
 
             try
             {

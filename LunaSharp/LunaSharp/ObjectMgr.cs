@@ -30,8 +30,7 @@ namespace LunaSharp.LunaSharp
         #region Static Methods
         internal static Entity CreateEntityFromPointer(IntPtr entityPointer)
         {
-            var getClassId = MemoryManager.ReadInt(entityPointer + (int)EntityOffsets.m_ClientID);
-            return new Player(entityPointer);
+            return null;
         }
         #endregion
     }

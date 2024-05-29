@@ -7,7 +7,7 @@ int main()
 {
 	LPCSTR DllPath = "./Bootstrap.dll"; // The Path to our DLL
 
-	HWND hwnd = FindWindowA(NULL, "AssaultCube"); // HWND (Windows window) by Window Name
+	HWND hwnd = FindWindowA(NULL, "D3D9Test"); // HWND (Windows window) by Window Name
 	DWORD procID; // A 32-bit unsigned integer, DWORDS are mostly used to store Hexadecimal Addresses
 	GetWindowThreadProcessId(hwnd, &procID); // Getting our Process ID, as an ex. like 000027AC
 	HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID); // Opening the Process with All Access
@@ -25,7 +25,7 @@ int main()
 	WaitForSingleObject(hLoadThread, INFINITE); // Wait for the execution of our loader thread to finish
 
 	cout << "Dll path allocated at: " << hex << pDllPath << endl;
-	cin.get();
+
 
 	VirtualFreeEx(handle, pDllPath, strlen(DllPath) + 1, MEM_RELEASE); // Free the memory allocated for our dll path
 

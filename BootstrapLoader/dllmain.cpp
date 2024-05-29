@@ -1,3 +1,5 @@
+// dllmain.cpp : Defines the entry point for the DLL application.
+#include "pch.h"
 #include <Windows.h>
 #include <mscoree.h>
 #include <metahost.h>
@@ -9,9 +11,9 @@
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 static const LPCWSTR Assembly = L"\\LunaSharp.dll";
-static const LPCWSTR Class    = L"LunaSharp.Bootstrap";
-static const LPCWSTR Method   = L"EntryPoint";
-static const LPCWSTR Param    = L"";
+static const LPCWSTR Class = L"LunaSharp.Bootstrap";
+static const LPCWSTR Method = L"EntryPoint";
+static const LPCWSTR Param = L"";
 HMODULE MODULE;
 
 DWORD WINAPI CreateDotNetRunTime(LPVOID lpParam)
@@ -32,8 +34,8 @@ DWORD WINAPI CreateDotNetRunTime(LPVOID lpParam)
 	fopen_s(&file, "LogFile.log", "a+");
 
 	HRESULT hr = CLRCreateInstance(
-		CLSID_CLRMetaHost, 
-		IID_ICLRMetaHost, 
+		CLSID_CLRMetaHost,
+		IID_ICLRMetaHost,
 		(LPVOID*)&lpMetaHost
 	);
 
@@ -44,7 +46,7 @@ DWORD WINAPI CreateDotNetRunTime(LPVOID lpParam)
 	}
 
 	hr = lpMetaHost->GetRuntime(
-		L"v4.0.30319", 
+		L"v4.0.30319",
 		IID_PPV_ARGS(&lpRuntimeInfo)
 	);
 
@@ -69,7 +71,7 @@ DWORD WINAPI CreateDotNetRunTime(LPVOID lpParam)
 	}
 
 	hr = lpRuntimeInfo->GetInterface(
-		CLSID_CLRRuntimeHost, 
+		CLSID_CLRRuntimeHost,
 		IID_PPV_ARGS(&lpRuntimeHost)
 	);
 
@@ -97,10 +99,10 @@ DWORD WINAPI CreateDotNetRunTime(LPVOID lpParam)
 	DWORD dwRetCode = 0;
 
 	hr = lpRuntimeHost->ExecuteInDefaultAppDomain(
-		(LPWSTR)tempPath.c_str(), 
+		(LPWSTR)tempPath.c_str(),
 		Class,
-		Method, 
-		Param, 
+		Method,
+		Param,
 		&dwRetCode
 	);
 
@@ -117,7 +119,7 @@ DWORD WINAPI CreateDotNetRunTime(LPVOID lpParam)
 	while (true)
 	{
 		Sleep(1);
-		if (GetAsyncKeyState(VK_DELETE) & 1) 
+		if (GetAsyncKeyState(VK_DELETE) & 1)
 		{
 			lpRuntimeHost->Stop();
 			lpRuntimeHost->Release();
@@ -129,23 +131,22 @@ DWORD WINAPI CreateDotNetRunTime(LPVOID lpParam)
 	//fclose(file);
 	return 0;
 }
-
-void Hello() {
-
-}
-
-DWORD APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain( HMODULE hModule,
+                       DWORD  ul_reason_for_call,
+                       LPVOID lpReserved
+                     )
 {
-	switch (dwReason)
-	{
-	case DLL_PROCESS_ATTACH:
+    switch (ul_reason_for_call)
+    {
+    case DLL_PROCESS_ATTACH:
 		MODULE = hModule;
-		CreateThread(NULL, NULL, CreateDotNetRunTime, NULL, NULL, NULL);
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-	case DLL_PROCESS_DETACH:
-	default:
+		CloseHandle(CreateThread(NULL, NULL, CreateDotNetRunTime, NULL, NULL, NULL));
 		break;
-	}
-	return true;
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    case DLL_PROCESS_DETACH:
+        break;
+    }
+    return TRUE;
 }
+

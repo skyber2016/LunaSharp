@@ -1,6 +1,4 @@
-﻿using LunaSharp.LunaSharpKernel.Offsets;
-using System;
-using System.Numerics;
+﻿using System;
 
 namespace LunaSharp.LunaSharp.Entities
 {
@@ -14,18 +12,9 @@ namespace LunaSharp.LunaSharp.Entities
         public Entity() { }
 
 
-        public Vector3 NetworkOrigin => MemoryManager.ReadVec(EntityPointer + (int)EntityOffsets.VecNetworkOrigin);
 
 
         #region Internal Methods
-
-        internal IntPtr BasePointer() => EntityPointer;
-
-        internal float PossitionX() => NetworkOrigin.X;
-
-        internal float PossitionY() => NetworkOrigin.Y;
-
-        internal float PossitionZ() => NetworkOrigin.Z;
 
         #endregion
     }

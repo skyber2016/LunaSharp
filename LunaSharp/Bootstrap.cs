@@ -2,6 +2,8 @@
 using LunaSharp.Utils;
 using LunaSharpKernel.Detours;
 using LunaSharpKernel.Misc;
+using RenderSpy.Globals;
+using RenderSpy.Graphics.d3d9;
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
@@ -16,7 +18,7 @@ namespace LunaSharp
         private static bool m_initialized;
 
         #endregion
-
+        private static Present Present { get; set; }
         #region Static Methods
 
         [STAThread]
@@ -26,8 +28,9 @@ namespace LunaSharp
             {
                 if (m_initialized) return 0;
                 m_initialized = true;
-                Logging.Write()("Process (" + Process.GetCurrentProcess().ProcessName + ") [" + Process.GetCurrentProcess().Id + "] Found");
                 Logging.LogAllExceptions();
+                WinApi.AllocConsole();
+                Logging.Write()("Process (" + Process.GetCurrentProcess().ProcessName + ") [" + Process.GetCurrentProcess().Id + "] Found");
 
                 //Get All Signatures
                 Signatures.LoadSignatures();
@@ -43,22 +46,14 @@ namespace LunaSharp
             return 0;
         }
 
-        private static void Game_OnEventGameRender(IntPtr hdc)
+        private static void Game_OnEventGameRender(IntPtr device)
         {
-            var player = ObjectMgr.LocalPlayer;
-            var health = player.Health();
-            var pos = player.NetworkOrigin;
-
-            glColor3f(0.0f, 0.0f, 1.0f);
-            glLineWidth(30);
-            glBegin(BeginMode.GL_LINE_LOOP);
-            glVertex2i(50, 90);
-            glVertex2i(100, 90);
-            glVertex2i(100, 150);
-            glVertex2i(50, 150);
-            glEnd();
-            glFlush();
+            ImGuiRender.Instance.Initialize(device);
+            ImGuiRender.Instance.Render();
+            ImGuiRender.Instance.Endscene();
         }
+
+
 
         #endregion
 

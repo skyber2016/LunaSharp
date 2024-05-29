@@ -22,9 +22,9 @@ namespace LunaSharpKernel.Detours
         internal static void Initialize()
         {
             if (m_initialized) return;
-
             m_initialized = true;
-            OpenglState.CreateHook();
+            PresentDetour.Instance.CreateHook();
+            DefWindowProcDetour.CreateHook();
             Detours.ApplyAll();
         }
 
