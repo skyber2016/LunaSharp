@@ -1,16 +1,16 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
-#include <Windows.h>
-#include <mscoree.h>
-#include <metahost.h>
-#include <wchar.h>
 #include <fstream>
+#include <metahost.h>
+#include <mscoree.h>
 #include <string>
+#include <wchar.h>
+#include <Windows.h>
 #pragma comment(lib, "mscoree.lib")
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
-static const LPCWSTR Assembly = L"\\LunaSharp.dll";
+static const LPCWSTR Assembly = L"\\LunaSharp.Core.dll";
 static const LPCWSTR Class = L"LunaSharp.Bootstrap";
 static const LPCWSTR Method = L"EntryPoint";
 static const LPCWSTR Param = L"";
@@ -116,37 +116,30 @@ DWORD WINAPI CreateDotNetRunTime(LPVOID lpParam)
 		lpRuntimeInfo->Release();
 		lpMetaHost->Release();
 	}
-	while (true)
+	if (file)
 	{
-		Sleep(1);
-		if (GetAsyncKeyState(VK_DELETE) & 1)
-		{
-			lpRuntimeHost->Stop();
-			lpRuntimeHost->Release();
-			lpRuntimeInfo->Release();
-			lpMetaHost->Release();
-			FreeLibraryAndExitThread(MODULE, 0);
-		}
+		fclose(file);
 	}
-	//fclose(file);
+
+	FreeLibraryAndExitThread(MODULE, 0);
 	return 0;
 }
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+)
 {
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
 		MODULE = hModule;
 		CloseHandle(CreateThread(NULL, NULL, CreateDotNetRunTime, NULL, NULL, NULL));
 		break;
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return TRUE;
 }
 

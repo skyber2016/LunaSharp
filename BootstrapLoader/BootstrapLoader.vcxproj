@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>../build/</OutDir>
-    <IntDir>../build/Imtermediate/</IntDir>
+    <IntDir>$(Configuration)</IntDir>
     <TargetName>Bootstrap</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
